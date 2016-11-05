@@ -31,10 +31,16 @@ app.get("/user/journies/:mac_address", jsonParser, function(req, res) {
 });
 
 app.post("/user/pay", jsonParser, function(req, res) {
-	db_client.get_journies(req.body.mac_address, function(unpaid) {
+	db_client.get_user_journey(req.body.mac_address, function(unpaid) {
 		var journies = journey_processor.partition_journey(unpaid);
-		var price = db_client.get_price(journies);
-
+		var price = 0
+		for(journy in journies){
+			db_client.get_price(journies, function(nPrice) {
+				console.log(nPrice)
+				price += nPrice
+			});
+		}
+ 		
 		db_client.get_payment_info(req.body.mac_address, function(payment_info){
 			payment_processor.pay(price, payment_info);
 			db_client.set_processed(req.body.mac_address);

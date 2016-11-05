@@ -13,7 +13,7 @@ this.pay = function(amount, payment_info){
 	  	number: payment_info.card_num,
 	  	object: "card"
 	  },
-	  description: "Charge for " + user
+	  description: "Charge for " + payment_info.name
 	}, {
 	  idempotency_key: "RZqa6tJYMQmvZ2By"
 	}, function(err, charge) {

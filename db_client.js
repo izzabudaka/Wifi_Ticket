@@ -36,22 +36,21 @@ this.create_entry = function(mac_address, location_id, timestamp, status){
 	})
 }
 
-this.get_price = function(journies){
-	var total = 0
-	for(journy in journies){
-		pool.connect(function(err, client, done){
-			client.query("SELECT * FROM prices where start=$1 and destination=$2",
-				[journy[0], journy[1]],
-				function(err, result){
-					done()
-					if(err)
-						console.log('err running query', err)
-					total += result.rows[0]
-				}
-			)}
-		)
-	}
-	return total
+this.get_price = function(journy, callback){
+	// TODO: INCLUDE peak time and off peak
+	console.log(journy)
+	pool.connect(function(err, client, done){
+		client.query("SELECT price FROM prices where start=$1 and destination=$2",
+			[parseInt(journy[0].location_id), parseInt(journy[1].location_id)],
+			function(err, result){
+				done()
+				if(err)
+					console.log('err running query', err)
+				console.log(result)
+				callback(result.rows[0])
+			}
+		)}
+	)
 }
 
 this.get_payment_info = function(mac_address, callback){
@@ -60,6 +59,7 @@ this.get_payment_info = function(mac_address, callback){
 			done()
 			if(err)
 				console.log('err running query', err)
+			console.log(result)
 			callback(result.rows[0])
 		});
 	})
@@ -67,7 +67,7 @@ this.get_payment_info = function(mac_address, callback){
 
 this.set_processed = function(mac_address){
 	pool.connect(function(err, client, done){
-		client.query("UPDATE entry set type='PROCESSED' where mac_address=$1", [mac_address],
+		client.query("UPDATE entry set status='PROCESSED' where mac_address=$1", [mac_address],
 			function(err, result) {
 				done()
 				if(err)
