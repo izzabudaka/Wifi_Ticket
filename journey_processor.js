@@ -1,38 +1,57 @@
-// [{'entry', time: '100', location: 1}, {'exit', time: '101', location: 1}, {'enter', time: '102', location: 2}]
-this.partition_journey = function(all_travels){
-	var result = []
-	var cur = []
-	var curIndex = 0
-	while(curIndex < all_travels.length){
-		if(cur.length == 0){
-			var current_item = all_travels[curIndex]
-			// disregard any futher mentions of same location
-			while(curIndex < all_travels.length 
-					&& all_travels[curIndex].location_id == current_item.location_id){
-				curIndex++;
-			}
-			cur.push(current_item)
-		} else if(cur.length > 0 && all_travels[curIndex].status == 'enter'){
-			var current_item = all_travels[curIndex]
+var clusterfck = require("./clusterfck/clusterfck");
 
-			while(curIndex < all_travels.length 
-					&& all_travels[curIndex].location_id == current_item.location_id){
-				curIndex++;
-			}
+const points = [
+    ["2016-10-24T20:42:59.000Z",9],
 
-			var date1 = new Date(cur[cur.length-1].timestamp)
-			var date2 = new Date(current_item.timestamp)
+    ["2016-10-25T07:00:59.000Z",1],
+    ["2016-10-25T07:06:59.000Z",2],
+    ["2016-10-25T07:08:59.000Z",5],
+    ["2016-10-25T07:09:59.000Z",3],
 
-			var difference = date1.getTime() - date2.getTime()	
-			var minutesDifference = Math.floor(difference/1000/60);
+    ["2016-10-25T16:20:59.000Z",3],
+    ["2016-10-25T16:25:59.000Z",5],
 
-			if(minutesDifference > 30){
-				result.push([cur[0], cur[cur.length-1]])
-				cur = []
-			} else{
-				cur.push(current_item)
-			}
-		}
-	}
-	return result;
+    ["2016-10-25T16:55:59.000Z",5],
+];
+
+function recMerge(c) {
+    if(!c) { return []; }
+    if(c.data) { return [c.data.data] }
+    let left    = recMerge(c.left);
+    let right   = recMerge(c.right);
+    return left.concat(right);
 }
+
+function findStartEnd(c) {
+
+    let sorted = c.sort((a,b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
+    let min = sorted[0];
+    let max = sorted[sorted.length - 1];
+
+    return {
+        start: min,
+        destination: max
+    }
+}
+
+this.partition_journey = function(all_travels) {
+    var threshold = 900000; // only combine tw/o clusters with distance less than 14
+
+    const timePoints = all_travels.map(p => { return{
+        values: [Date.parse(p.timestamp)],
+        data: p
+    }});
+
+    var clusters = clusterfck.hcluster(timePoints, clusterfck.MANHATTAN_DISTANCE,
+        clusterfck.AVERAGE_LINKAGE, threshold);
+    
+    return clusters
+        .map(c => recMerge(c))
+        .filter(c => c.length > 1)
+        .map(c => findStartEnd(c));
+};
+
+//console.log(this.partition_journey(points));
+
+
+
