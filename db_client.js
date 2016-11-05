@@ -5,10 +5,11 @@ var client = new pg.Client(conString);
 client.connect();
 
 this.create_user = function(name, card_num, cvc, exp_month, exp_year, mac_address){
+	console.log("AAA")
 	client.query({
 		name: 'create user',
 		text: 'INSERT INTO users(mac_address, name, card_number, cvc, exp_month, exp_year) values($1, $2, $3, $4, $5, $6)',
-		values: [mac_address, name, card_number, cvc, exp_month, exp_year]
+		values: [mac_address, name, card_num, cvc, exp_month, exp_year]
 	});
 }
 
