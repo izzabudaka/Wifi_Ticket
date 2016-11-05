@@ -13,7 +13,7 @@ app.get("/", function(req, res) {
 });
 
 app.post("/user/add", jsonParser, function(req, res) { 
-	db_client.create_user(req.body.name, req.body.card, req.body.cvc,
+	db_client.create_user(req.body.name, req.body.card, req.body.cvc, req.body.device_id,
 						  req.body.month, req.body.year, req.body.mac_address);
 	res.send("OK");
 });
@@ -27,6 +27,17 @@ app.post("/entry/add", jsonParser, function(req, res) {
 app.get("/user/journies/:mac_address", jsonParser, function(req, res) { 
 	db_client.get_user_journey(req.params.mac_address, function(result){
 		res.send(result);
+	});
+});
+
+app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) { 
+	db_client.get_user_journey(req.body.mac_address, function(result) {
+		var unnamed = journey_processor.partition_journey(result);
+		for(idx in unnamed){
+			var location = db_client.get_location_name(unnamed[idx].location_id)
+			unnamed[idx]["location_name"] = location
+		}
+		res.send(unnamed);
 	});
 });
 

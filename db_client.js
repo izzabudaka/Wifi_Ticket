@@ -11,11 +11,11 @@ var config = {
 // trollolol enjoy the merge conflict
 var pool = new pg.Pool(config);
 
-this.create_user = function(name, card_num, cvc, exp_month, exp_year, mac_address){
+this.create_user = function(name, card_num, cvc, device_id, exp_month, exp_year, mac_address){
 	pool.connect(function(err, client, done){
 		client.query(
-			'INSERT INTO users(mac_address, name, card_number, cvc, exp_month, exp_year) values($1, $2, $3, $4, $5, $6)',
-			[mac_address, name, card_num, cvc, exp_month, exp_year],
+			'INSERT INTO users(mac_address, name, card_number, cvc, exp_month, exp_year, device_id) values($1, $2, $3, $4, $5, $6, $7)',
+			[mac_address, name, card_num, cvc, device_id, exp_month, exp_year],
 			function(err, result){
 				done()
 				if(err)
@@ -74,6 +74,20 @@ this.set_processed = function(mac_address){
 					console.log('err running query', err)
 			})
 	})
+}
+
+this.get_location_name = function(location_id){
+	pool.connect(function(err, client, done) {
+		client.query("SELECT name FROM locations where location_id=$1",
+			[location_id],
+			function(err, result){
+				done()
+				if(err)
+					console.log('err running query', err)
+				callback(result.rows[0].name)
+			}
+		)}
+	)
 }
 
 this.get_user_journey = function(mac_address, callback){
