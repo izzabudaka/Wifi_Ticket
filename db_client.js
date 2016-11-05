@@ -24,7 +24,22 @@ this.create_user = function(name, card_num, cvc, device_id, exp_month, exp_year,
 	})
 }
 
-this.create_entry = function(mac_address, location_id, timestamp, status){
+this.get_device_id = function(mac_address, callback){
+	pool.connect(function(err, client, done) {
+		client.query("SELECT device_id FROM users where mac_address=$1",
+			[mac_address],
+			function(err, result){
+				done()
+				if(err)
+					console.log('err running query', err)
+				console.log(result)
+				callback(result.rows[0].device_id)
+			}
+		)}
+	)
+}
+
+this.create_entry = function(mac_address, location_id, timestamp, status, callback){
 	pool.connect(function(err, client, done){
 		client.query('INSERT INTO entry(mac_address, location_id, timestamp, status) values($1, $2, $3, $4)',
 			[mac_address, location_id, timestamp, status],
@@ -32,6 +47,7 @@ this.create_entry = function(mac_address, location_id, timestamp, status){
 				done()
 				if(err)
 					console.log('err running query', err)
+				callback();
 			});
 	})
 }

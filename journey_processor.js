@@ -34,8 +34,8 @@ function findStartEnd(c) {
     }
 }
 
-this.partition_journey = function(all_travels) {
-    var threshold = 900000; // only combine tw/o clusters with distance less than 14
+this.get_clustered_journeys = function(all_travels) {
+	var threshold = 900000; // only combine tw/o clusters with distance less than 14
 
     const timePoints = all_travels.map(p => { return{
         values: [Date.parse(p.timestamp)],
@@ -44,8 +44,22 @@ this.partition_journey = function(all_travels) {
 
     var clusters = clusterfck.hcluster(timePoints, clusterfck.MANHATTAN_DISTANCE,
         clusterfck.AVERAGE_LINKAGE, threshold);
-    
-    return clusters
+
+    return clusters;
+}
+
+this.get_entity_cluster_size = function(clusters, timestamp){
+	for(idx1 in clusters){
+		for(idx2 in clusters[idx1]){
+			if(clusters[idx1][idx2].timestamp == timestamp){
+				return clusters[idx1].length;
+			}
+		}
+	}
+}
+
+this.partition_journey = function(all_travels) {
+    return get_clustered_journeys(all_travels)
         .map(c => recMerge(c))
         .filter(c => c.length > 1)
         .map(c => findStartEnd(c));

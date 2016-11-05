@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/izzabudaka/Wifi_Ticket#readme",
   "dependencies": {
+    "apn": "^2.1.1",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "node-gcm-service": "^0.2.8",
     "pg": "^6.1.0",
     "stripe": "^4.12.0"
   }

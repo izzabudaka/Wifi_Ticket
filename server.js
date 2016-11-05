@@ -1,8 +1,11 @@
 var express = require("express");
+
 var db_client = require("./db_client.js");
 var payment_processor = require("./payment_processor.js");
 var journey_processor = require("./journey_processor.js");
-var bodyParser = require('body-parser')
+var notification_processor = require("./notification_processor.js");
+
+var bodyParser = require('body-parser');
 var app = express();
 
 var jsonParser = bodyParser.json()
@@ -20,7 +23,16 @@ app.post("/user/add", jsonParser, function(req, res) {
 
 app.post("/entry/add", jsonParser, function(req, res) { 
 	db_client.create_entry(req.body.mac_address, req.body.location_id,
-						   req.body.timestamp, "UNPROCESSED");
+				   		   req.body.timestamp, "UNPROCESSED",
+	   function(){
+	   		var journies = journey_processor.get_clustered_journeys(req.body.mac_address);
+
+	   		if(journey_processor.get_entity_cluster_size(journies, req.body.timestamp) == 1){
+		   		db_client.get_device_id(req.body.mac_address, function(device_id){
+					notification_processor.send_notification(device_id, "Your Journey Starts Here!");
+		   		});
+	   		}
+	   });
 	res.send("OK");
 });
 
