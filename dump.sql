@@ -162,6 +162,8 @@ SELECT pg_catalog.setval('locations_location_id_seq', 10, true);
 --
 
 COPY prices (start, destination, price) FROM stdin;
+2	3	40
+3	5	50
 \.
 
 
