@@ -12,8 +12,7 @@ this.partition_journey = function(all_travels){
 				curIndex++;
 			}
 			cur.push(current_item)
-		} else if(cur.length > 0 && all_travels[curIndex].status == 'enter' 
-					&& routeExists(all_travels[curIndex], cur[cur.length-1])){
+		} else if(cur.length > 0 && all_travels[curIndex].status == 'enter'){
 			var current_item = all_travels[curIndex]
 
 			while(curIndex < all_travels.length 
