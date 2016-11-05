@@ -8,7 +8,7 @@ var config = {
   idleTimeoutMillis: 30000,
 };
  
-
+// trollolol enjoy the merge conflict
 var pool = new pg.Pool(config);
 
 this.create_user = function(name, card_num, cvc, exp_month, exp_year, mac_address){
