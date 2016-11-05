@@ -28,3 +28,8 @@ CREATE TABLE prices(
 	price integer not null,
 	CONSTRAINT prices_pk PRIMARY KEY(start, destination)
 );
+
+GRANT ALL PRIVILEGES ON TABLE users to tg_wifi;
+GRANT ALL PRIVILEGES ON TABLE locations to tg_wifi;
+GRANT ALL PRIVILEGES ON TABLE entry to tg_wifi;
+GRANT ALL PRIVILEGES ON TABLE prices to tg_wifi;
