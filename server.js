@@ -34,8 +34,8 @@ app.post("/user/pay", jsonParser, function(req, res) {
 	db_client.get_user_journey(req.body.mac_address, function(unpaid) {
 		var journies = journey_processor.partition_journey(unpaid);
 		var price = 0
-		for(journy in journies){
-			db_client.get_price(journies, function(nPrice) {
+		for(idx in journies) {
+			db_client.get_price(journies[idx], function(nPrice) {
 				console.log(nPrice)
 				price += nPrice
 			});

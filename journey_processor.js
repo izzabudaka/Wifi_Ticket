@@ -29,8 +29,8 @@ function findStartEnd(c) {
     let max = sorted[sorted.length - 1];
 
     return {
-        start: min,
-        destination: max
+        "start": min,
+        "destination": max
     }
 }
 

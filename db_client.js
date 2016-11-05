@@ -36,18 +36,18 @@ this.create_entry = function(mac_address, location_id, timestamp, status){
 	})
 }
 
-this.get_price = function(journy, callback){
+this.get_price = function(journy, callback) {
 	// TODO: INCLUDE peak time and off peak
-	console.log(journy)
-	pool.connect(function(err, client, done){
+	
+	pool.connect(function(err, client, done) {
 		client.query("SELECT price FROM prices where start=$1 and destination=$2",
-			[parseInt(journy[0].location_id), parseInt(journy[1].location_id)],
+			[parseInt(journy.start.location_id), parseInt(journy.destination.location_id)],
 			function(err, result){
 				done()
 				if(err)
 					console.log('err running query', err)
 				console.log(result)
-				callback(result.rows[0])
+				callback(result.rows[0].price)
 			}
 		)}
 	)
