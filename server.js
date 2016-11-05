@@ -31,7 +31,7 @@ app.get("/user/journies/:mac_address", jsonParser, function(req, res) {
 });
 
 app.post("/user/pay", jsonParser, function(req, res) {
-	db_client.get_journies(req.body.mac_address, function(unpaid){
+	db_client.get_journies(req.body.mac_address, function(unpaid) {
 		var journies = journey_processor.partition_journey(unpaid);
 		var price = db_client.get_price(journies);
 
