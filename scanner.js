@@ -4,7 +4,8 @@ const request = require('request');
 
 const regex = /([0-9a-f]{1,2}[\.:-]){5}([0-9a-f]{1,2})/;
 const command = "arp -a";
-const requestUrl = "https://github.com/request/request"
+const requestUrl = "http://localhost:5000"
+const locationId = 1;
 
 let active = [];
 
@@ -43,24 +44,27 @@ function registerDevice(mac) {
 
 function removeDevice(mac) {
     console.log("removing mac: ", mac);
-    sendData(mac, STATUS.DISCONNECTED);
+    //sendData(mac, STATUS.DISCONNECTED);
     active.splice(active.indexOf(mac), 1);
 }
 
 function sendData(mac, status) {
     let data = {
-        mac: mac,
+        mac_address: mac,
         status: status,
         timestamp: new Date(),
-
+        location_id: locationId
     };
-    console.log(data);
-    //request
-    //    .post(
-    //    {url:requestUrl, formData: data},
-    //    (err, httpResponse, body) => {
-    //        console.log(body)
-    //    });
+
+    var options = {
+        uri: requestUrl + "/entry/add",
+        method: 'POST',
+        json: data
+    };
+
+    request(options, function (error, response, body) {
+        console.log(body);
+    });
 }
 
 function scan() {

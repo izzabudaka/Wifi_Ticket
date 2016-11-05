@@ -18,7 +18,8 @@ app.post("/user/add", jsonParser, function(req, res) {
 	res.send("OK");
 });
 
-app.post("/entry/add", jsonParser, function(req, res) { 
+app.post("/entry/add", jsonParser, function(req, res) {
+    console.log(req.body);
 	db_client.create_entry(req.body.mac_address, req.body.location_id,
 						   req.body.timestamp, "UNPROCESSED");
 	res.send("OK");
