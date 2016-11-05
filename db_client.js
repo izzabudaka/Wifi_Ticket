@@ -54,14 +54,13 @@ this.get_price = function(journies){
 	return total
 }
 
-this.get_payment_info = function(mac_address){
+this.get_payment_info = function(mac_address, callback){
 	pool.connect(function(err, client, done){
 		client.query("SELECT * from users where mac_address=$1", [mac_address], function(err, result){
 			done()
 			if(err)
 				console.log('err running query', err)
-			var payment_info = result.rows[0];
-			return payment_info;
+			callback(result.rows[0])
 		});
 	})
 }
@@ -77,18 +76,15 @@ this.set_processed = function(mac_address){
 	})
 }
 
-this.get_user_journey = function(mac_address){
+this.get_user_journey = function(mac_address, callback){
 	pool.connect(function(err, client, done){
-		client.query({
-			name: 'get user journey',
-			text: "SELECT * FROM entry where type ='UNPROCESSED' and mac_address=$1 ORDER BY timestamp",
-			values: [mac_address],
+		client.query("SELECT * FROM entry where status ='UNPROCESSED' and mac_address=$1 ORDER BY timestamp",
+			[mac_address],
 			function(err, result){
 				done()
 				if(err)
 					console.log('err running query', err)
-				return result.rows;
-			}
-		})
+				callback(result.rows)
+			})
 	})
 }

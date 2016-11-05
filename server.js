@@ -25,19 +25,22 @@ app.post("/entry/add", jsonParser, function(req, res) {
 });
 
 app.get("/user/journies/:mac_address", jsonParser, function(req, res) { 
-	var result = db_client.get_user_journey(req.params.mac_address);
-	res.send(JSON.parse(result));
+	db_client.get_user_journey(req.params.mac_address, function(result){
+		res.send(result);
+	});
 });
 
 app.post("/user/pay", jsonParser, function(req, res) {
-	var unpaid = db_client.get_journies(req.body.mac_address);
-	var journies = journey_processor.partition_journey(unpaid);
+	db_client.get_journies(req.body.mac_address, function(unpaid){
+		var journies = journey_processor.partition_journey(unpaid);
+		var price = db_client.get_price(journies);
 
-	var price = db_client.get_price(journies);
-	var payment_info = db_client.get_payment_info(req.body.mac_address);
-	payment_processor.pay(price, payment_info);
-	db_client.set_processed(req.body.mac_address);
-	res.send("User paid " + price);
+		db_client.get_payment_info(req.body.mac_address, function(payment_info){
+			payment_processor.pay(price, payment_info);
+			db_client.set_processed(req.body.mac_address);
+			res.send("User paid " + price);
+		});
+	});
 });
 
 var port = process.env.PORT || 5000;
