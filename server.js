@@ -21,12 +21,12 @@ app.post("/user/add", jsonParser, function(req, res) {
 
 app.post("/entry/add", jsonParser, function(req, res) { 
 	db_client.create_entry(req.body.mac_address, req.body.location_id,
-						   req.body.timestamp, req.body.type, req.body.status);
+						   req.body.timestamp, "UNPROCESSED", req.body.status);
 	res.send("OK");
 });
 
 app.get("/user/journies", jsonParser, function(req, res) { 
-	var result = db_client.get_journies(req.body.mac_address);
+	var result = db_client.get_user_journey(req.body.mac_address);
 	res.send(JSON.parse(result));
 });
 
