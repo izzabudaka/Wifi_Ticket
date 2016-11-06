@@ -35,6 +35,7 @@ app.get("/user/journies/:mac_address", jsonParser, function(req, res) {
 });
 
 app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) { 
+	console.log(new Date())
 	db_client.get_user_journey(req.params.mac_address, function(result) {
 		var unnamed = journey_processor.partition_journey_with_ones(result);
 		async.forEach(unnamed, function (item, callback){ 
@@ -47,12 +48,18 @@ app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) {
 			})
 		}, function(err) {
 			result = {}
-			db_client.get_price(unnamed[unnamed.length-1], function(nPrice) {
-				result["price"] = nPrice
-				result["destination"] = unnamed[unnamed.length-1].destination.location_name
-				result["start"] = unnamed[unnamed.length-1].start.location_name
-				res.send(result);
-			});
+			var diff = new Date() - new Date(unnamed[unnamed.length-1].destination.timestamp);
+			var diffMins = Math.abs(Math.round(((diff % 86400000) % 3600000) / 60000));
+			if(diffMins > 15){
+				res.send({});
+			} else{
+				db_client.get_price(unnamed[unnamed.length-1], function(nPrice) {
+					result["price"] = nPrice
+					result["destination"] = unnamed[unnamed.length-1].destination.location_name
+					result["start"] = unnamed[unnamed.length-1].start.location_name
+					res.send(result);
+				});
+			}
 		});  
 	});
 });
