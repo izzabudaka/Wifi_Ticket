@@ -51,13 +51,13 @@ app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) {
 			var diff = new Date() - new Date(unnamed[unnamed.length-1].destination.timestamp);
 			var diffMins = Math.abs(Math.round(((diff % 86400000) % 3600000) / 60000));
 			if(diffMins > 15){
-				res.send({});
+				res.send({"data": null});
 			} else{
 				db_client.get_price(unnamed[unnamed.length-1], function(nPrice) {
 					result["price"] = nPrice
 					result["destination"] = unnamed[unnamed.length-1].destination.location_name
 					result["start"] = unnamed[unnamed.length-1].start.location_name
-					res.send(result);
+					res.send({"data": result});
 				});
 			}
 		});  
