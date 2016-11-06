@@ -1,6 +1,7 @@
 // or more concisely
 const exec    = require('child_process').exec;
 const request = require('request');
+const io = require('socket.io-client');
 
 const regex = /([0-9a-f]{1,2}[\.:-]){5}([0-9a-f]{1,2})/;
 const command = "arp -a";
@@ -13,6 +14,8 @@ const STATUS = {
     CONNECTED: "CONNECTED",
     DISCONNECTED: "CONNECTED"
 };
+
+const SOCKET = io('http://178.62.8.47:42141');
 
 function findMacAddresses(output) {
     let macArray = output
@@ -56,6 +59,8 @@ function sendData(mac, status) {
         location_id: locationId
     };
 
+    SOCKET.emit('assoc', data);
+
     var options = {
         uri: requestUrl + "/entry/add",
         method: 'POST',
@@ -72,16 +77,13 @@ function scan() {
         console.log("Finding mac addresses");
         findMacAddresses(output);
         exec('sudo arp -d -i en0 -a', () => {
-            setTimeout(
-                () => {
-                    console.log("timeouttt");
-                    scan();
-                }, 20000);
+            console.log("Timeout");
         });
     });
 }
 
 scan();
+setInterval(scan, 5000);
 
 
 
