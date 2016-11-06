@@ -51,12 +51,12 @@ app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) {
 			var diff = new Date() - new Date(unnamed[unnamed.length-1].destination.timestamp);
 			var diffMins = Math.abs(Math.round(((diff % 86400000) % 3600000) / 60000));
 			if(diffMins > 15){
-				res.send({"data": null});
+				res.send({});
 			} else{
 				db_client.get_price(unnamed[unnamed.length-1], function(nPrice) {
 					result["price"] = nPrice
-					result["destination"] = unnamed[unnamed.length-1].destination.location_name
-					result["start"] = unnamed[unnamed.length-1].start.location_name
+					result["destination"] = capitalizeFirstLetter(unnamed[unnamed.length-1].destination.location_name)
+					result["start"] = capitalizeFirstLetter(unnamed[unnamed.length-1].start.location_name)
 					res.send({"data": result});
 				});
 			}
@@ -82,6 +82,10 @@ app.post("/user/pay", jsonParser, function(req, res) {
 		});
 	});
 });
+
+function capitalizeFirstLetter(string) {
+    return string[0].toUpperCase() + string.slice(1);
+}
 
 var port = process.env.PORT || 5000;
 
