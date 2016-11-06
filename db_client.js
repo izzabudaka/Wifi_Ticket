@@ -39,7 +39,7 @@ this.get_device_id = function(mac_address, callback){
 	)
 }
 
-this.create_entry = function(mac_address, location_id, timestamp, status, callback){
+this.create_entry = function(mac_address, location_id, timestamp, status){
 	pool.connect(function(err, client, done){
 		client.query('INSERT INTO entry(mac_address, location_id, timestamp, status) values($1, $2, $3, $4)',
 			[mac_address, location_id, timestamp, status],
@@ -47,7 +47,6 @@ this.create_entry = function(mac_address, location_id, timestamp, status, callba
 				done()
 				if(err)
 					console.log('err running query', err)
-				callback();
 			});
 	})
 }

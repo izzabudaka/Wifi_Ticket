@@ -25,17 +25,7 @@ app.post("/user/add", jsonParser, function(req, res) {
 app.post("/entry/add", jsonParser, function(req, res) {
     console.log(req.body);
 	db_client.create_entry(req.body.mac_address, req.body.location_id,
-				   		   req.body.timestamp, "UNPROCESSED",
-	   function(){
-	   		var journies = journey_processor.get_clustered_journeys(req.body.mac_address);
-
-	   		if(journey_processor.get_entity_cluster_size(journies, req.body.timestamp) == 1){
-		   		db_client.get_device_id(req.body.mac_address, function(device_id){
-					notification_processor.send_notification(device_id, "Your Journey Starts Here!");
-		   		});
-	   		}
-	   });
-	res.send("OK");
+				   		   req.body.timestamp, "UNPROCESSED");
 });
 
 app.get("/user/journies/:mac_address", jsonParser, function(req, res) { 
