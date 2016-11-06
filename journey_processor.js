@@ -59,12 +59,17 @@ this.get_entity_cluster_size = function(clusters, timestamp){
 }
 
 this.partition_journey = function(all_travels) {
-    return get_clustered_journeys(all_travels)
+    return this.get_clustered_journeys(all_travels)
         .map(c => recMerge(c))
         .filter(c => c.length > 1)
         .map(c => findStartEnd(c));
 };
 
+this.partition_journey_with_ones = function(all_travels) {
+    return this.get_clustered_journeys(all_travels)
+        .map(c => recMerge(c))
+        .map(c => findStartEnd(c));
+};
 //console.log(this.partition_journey(points));
 
 

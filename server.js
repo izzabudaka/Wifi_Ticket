@@ -1,11 +1,12 @@
 var express = require("express");
+var async = require('async');
+var bodyParser = require('body-parser');
 
 var db_client = require("./db_client.js");
 var payment_processor = require("./payment_processor.js");
 var journey_processor = require("./journey_processor.js");
 var notification_processor = require("./notification_processor.js");
 
-var bodyParser = require('body-parser');
 var app = express();
 
 var jsonParser = bodyParser.json()
@@ -44,13 +45,25 @@ app.get("/user/journies/:mac_address", jsonParser, function(req, res) {
 });
 
 app.get("/user/journies/:mac_address/grouped", jsonParser, function(req, res) { 
-	db_client.get_user_journey(req.body.mac_address, function(result) {
-		var unnamed = journey_processor.partition_journey(result);
-		for(idx in unnamed){
-			var location = db_client.get_location_name(unnamed[idx].location_id)
-			unnamed[idx]["location_name"] = location
-		}
-		res.send(unnamed);
+	db_client.get_user_journey(req.params.mac_address, function(result) {
+		var unnamed = journey_processor.partition_journey_with_ones(result);
+		async.forEach(unnamed, function (item, callback){ 
+			db_client.get_location_name(item.start.location_id, function(name){
+				item.start["location_name"] = name
+				db_client.get_location_name(item.destination.location_id, function(name){
+					item.destination["location_name"] = name
+					callback()
+				})
+			})
+		}, function(err) {
+			result = {}
+			db_client.get_price(unnamed[unnamed.length-1], function(nPrice) {
+				result["price"] = nPrice
+				result["destination"] = unnamed[unnamed.length-1].destination.location_name
+				result["start"] = unnamed[unnamed.length-1].start.location_name
+				res.send(result);
+			});
+		});  
 	});
 });
 

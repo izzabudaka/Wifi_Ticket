@@ -54,19 +54,21 @@ this.create_entry = function(mac_address, location_id, timestamp, status, callba
 
 this.get_price = function(journy, callback) {
 	// TODO: INCLUDE peak time and off peak
-	
-	pool.connect(function(err, client, done) {
-		client.query("SELECT price FROM prices where start=$1 and destination=$2",
-			[parseInt(journy.start.location_id), parseInt(journy.destination.location_id)],
-			function(err, result){
-				done()
-				if(err)
-					console.log('err running query', err)
-				console.log(result)
-				callback(result.rows[0].price)
-			}
-		)}
-	)
+	if(journy.start.location_id == journy.destination.location_id)
+		callback(0)
+	else{
+		pool.connect(function(err, client, done) {
+			client.query("SELECT price FROM prices where start=$1 and destination=$2",
+				[parseInt(journy.start.location_id), parseInt(journy.destination.location_id)],
+				function(err, result){
+					done()
+					if(err)
+						console.log('err running query', err)
+					callback(result.rows[0].price)
+				}
+			)}
+		)
+	}
 }
 
 this.get_payment_info = function(mac_address, callback){
@@ -75,7 +77,6 @@ this.get_payment_info = function(mac_address, callback){
 			done()
 			if(err)
 				console.log('err running query', err)
-			console.log(result)
 			callback(result.rows[0])
 		});
 	})
@@ -92,7 +93,7 @@ this.set_processed = function(mac_address){
 	})
 }
 
-this.get_location_name = function(location_id){
+this.get_location_name = function(location_id, callback){
 	pool.connect(function(err, client, done) {
 		client.query("SELECT name FROM locations where location_id=$1",
 			[location_id],
